@@ -109,7 +109,7 @@ fn granularize(block: &str) -> Vec<Token>{
             x if DOTDOT.is_match(x) => DotDot,
             x if SINGLE_STRING_LITERAL.is_match(x) => StringLiteral(x[1..x.len() -1].to_string()),
             x if DOUBLE_STRING_LITERAL.is_match(x) => StringLiteral(x[1..x.len() -1].to_string()),
-            x if NUMBER_LITERAL.is_match(x) => NumberLiteral(from_str::<f32>(x).unwrap()),
+            x if NUMBER_LITERAL.is_match(x) => NumberLiteral(x.parse::<f32>().unwrap()),
             x if IDENTIFIER.is_match(x) => Identifier(x.to_string()),
             x => panic!("{} is not a valid identifier", x)
         })

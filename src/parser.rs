@@ -1,8 +1,9 @@
 use Renderable;
 use LiquidOptions;
+use output::Output;
 use text::Text;
-use std::slice::Items;
-use variable::Variable;
+use std::slice::IterMut;
+//use filters::{Variable, Value};
 use lexer::Token;
 use lexer::Token::{Identifier};
 use lexer::Element;
@@ -37,17 +38,28 @@ fn parse_expression<'a> (tokens: &Vec<Token>, options: &'a LiquidOptions) -> Box
 
 // creates an output, basically a wrapper around values, variables and filters
 fn parse_output<'a> (tokens: &Vec<Token>, options: &'a LiquidOptions) -> Box<Renderable + 'a> {
-    match tokens[0] {
-        Identifier(ref x) => box Variable::new(x.as_slice()) as Box<Renderable>,
+    let first_item = match tokens[0] {
+        Identifier(ref x) => box Output::new(x.as_slice()),
         // TODO implement warnings/errors
         ref x => panic!("parse_output: {} not implemented", x)
+    };
+
+    let mut items = vec![];
+    let mut iter = tokens.iter();
+    let mut token = iter.next();
+    while token.is_some() {
+        match token.unwrap() {
+        }
+        token = iter.next();
     }
+
+    box Output::new(first_item as Box<Renderable>, &items) as Box<Renderable>
 }
 
 // a tag can be either a single-element tag or a block, which can contain other elements
 // and is delimited by a closing tag named {{end + the_name_of_the_tag}}
 // tags do not get rendered, but blocks may contain renderable expressions
-fn parse_tag<'a> (iter: &mut Items<Element>, tokens: &Vec<Token>, options: &'a LiquidOptions) -> Box<Renderable + 'a> {
+fn parse_tag<'a> (iter: &mut IterMut<Element>, tokens: &Vec<Token>, options: &'a LiquidOptions) -> Box<Renderable + 'a> {
     match tokens[0] {
 
         // is a tag

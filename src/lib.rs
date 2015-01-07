@@ -1,8 +1,10 @@
 #![crate_name = "liquid"]
 
+#![feature(unboxed_closures)]
 #![feature(globs)]
 #![feature(slicing_syntax)]
 #![feature(phase)]
+
 #[phase(plugin)]
 extern crate regex_macros;
 extern crate regex;
@@ -19,11 +21,12 @@ use std::string::ToString;
 use std::default::Default;
 
 mod template;
-mod variable;
+mod output;
 mod text;
 mod lexer;
 mod parser;
 mod tags;
+mod filters;
 
 pub enum ErrorMode{
     Strict,
@@ -73,7 +76,7 @@ pub struct LiquidOptions<'a> {
 #[deriving(Default)]
 pub struct Context<'a>{
     values : HashMap<String, Value>,
-    filters : HashMap<String, |&str|:'a -> String>
+    filters : HashMap<String, Fn(&str) -> String + 'a>
 }
 
 pub fn parse<'a> (text: &str, options: &'a mut LiquidOptions<'a>) -> Template<'a>{

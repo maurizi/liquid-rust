@@ -1,5 +1,6 @@
 use Renderable;
 use Context;
+use filters::Size;
 
 pub struct Template<'a>{
     pub elements: Vec<Box<Renderable +'a>>
@@ -7,6 +8,7 @@ pub struct Template<'a>{
 
 impl<'a> Renderable for Template<'a> {
     fn render (&self, context: &Context) -> Option<String>{
+        context.filters.insert("size".to_string(), Size);
         Some(self.elements.iter().fold(String::new(), |fold, val| {
                                   match val.render(context)  {
                                       Some(x) => fold + x.as_slice(),
